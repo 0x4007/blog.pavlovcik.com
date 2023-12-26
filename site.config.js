@@ -17,7 +17,7 @@ export default {
   socialImageSubtitle: "Hello World! 👋",
 
   // social usernames (optional)
-  twitter: "Pavlovcik",
+  twitter: "0x4007",
   github: "pavlovcik",
 
   telegram: "Pavlovcik",
