@@ -1,27 +1,27 @@
 export default {
 
-  // the site's root Notion page (required)
-  rootNotionPageId: 'aba833db19a743bbbc3dbdbf990934d3',
+  // the site"s root Notion page (required)
+  rootNotionPageId: "aba833db19a743bbbc3dbdbf990934d3",
   // if you want to restrict pages to a single notion workspace (optional)
   // (this should be a Notion ID; see the docs for how to extract this)
-  // rootNotionSpaceId: '684fb1cf-ad2b-40c7-8e31-c099fa61e45f',
+  // rootNotionSpaceId: "684fb1cf-ad2b-40c7-8e31-c099fa61e45f",
 
   // basic site info (required)
-  name: 'Pavlovcik Blog',
-  domain: 'blog.pavlovcik.com',
-  author: 'Pavlovcik',
+  name: "Alex's Blog",
+  domain: "blog.pavlovcik.com",
+  author: "Alexander V. Pavlovcik",
 
   // open graph metadata (optional)
-  description: 'Pavlovcik Blog',
-  socialImageTitle: 'Pavlovcik Blog',
-  socialImageSubtitle: 'Hello World! 👋',
+  description: "Alex's Blog",
+  socialImageTitle: "Alex's Blog",
+  socialImageSubtitle: "Hello World! 👋",
 
   // social usernames (optional)
-  twitter: 'Pavlovcik',
-  github: 'pavlovcik',
+  twitter: "Pavlovcik",
+  github: "pavlovcik",
 
-  telegram: 'Pavlovcik',
-  // linkedin: 'fisch2',
+  telegram: "Pavlovcik",
+  // linkedin: "fisch2",
 
   // default notion icon and cover images for site-wide consistency (optional)
   // page-specific values will override these site-wide defaults
@@ -31,7 +31,7 @@ export default {
 
   // image CDN host to proxy all image requests through (optional)
   // NOTE: this requires you to set up an external image proxy
-  // imageCDNHost: 'https://ssfy.io',
+  // imageCDNHost: "https://ssfy.io",
 
   // Utteranc.es comments via GitHub issue comments (optional)
   utterancesGitHubRepo: null,
@@ -53,8 +53,8 @@ export default {
   // example:
   //
   // pageUrlOverrides: {
-  //   '/foo': '067dd719a912471ea9a3ac10710e7fdf',
-  //   '/bar': '0be6efce9daf42688f65c76b89f8eb27'
+  //   "/foo": "067dd719a912471ea9a3ac10710e7fdf",
+  //   "/bar": "0be6efce9daf42688f65c76b89f8eb27"
   // }
   pageUrlOverrides: null
 }
