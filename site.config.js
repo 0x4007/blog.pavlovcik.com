@@ -1,11 +1,10 @@
 export default {
 
-
   // the site's root Notion page (required)
   rootNotionPageId: 'aba833db19a743bbbc3dbdbf990934d3',
   // if you want to restrict pages to a single notion workspace (optional)
   // (this should be a Notion ID; see the docs for how to extract this)
-  rootNotionSpaceId: '684fb1cf-ad2b-40c7-8e31-c099fa61e45f',
+  // rootNotionSpaceId: '684fb1cf-ad2b-40c7-8e31-c099fa61e45f',
 
   // basic site info (required)
   name: 'Pavlovcik Blog',
