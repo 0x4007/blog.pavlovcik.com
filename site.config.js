@@ -8,7 +8,7 @@ export default {
 
   // basic site info (required)
   name: 'Pavlovcik Blog',
-  domain: 'dao.ubq.fi',
+  domain: 'blog.pavlovcik.com',
   author: 'Pavlovcik',
 
   // open graph metadata (optional)
