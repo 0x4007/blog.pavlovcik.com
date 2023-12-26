@@ -1,25 +1,27 @@
 export default {
+
+
   // the site's root Notion page (required)
-  rootNotionPageId: 'ff1a3cae900941e49cc4d4458cc2867d',
+  rootNotionPageId: 'aba833db19a743bbbc3dbdbf990934d3',
   // if you want to restrict pages to a single notion workspace (optional)
   // (this should be a Notion ID; see the docs for how to extract this)
   rootNotionSpaceId: '684fb1cf-ad2b-40c7-8e31-c099fa61e45f',
 
   // basic site info (required)
-  name: 'Ubiquity DAO Hub',
+  name: 'Pavlovcik Blog',
   domain: 'dao.ubq.fi',
-  author: 'Ubiquity DAO',
+  author: 'Pavlovcik',
 
   // open graph metadata (optional)
-  description: 'Ubiquity DAO Contributors Hub',
-  socialImageTitle: 'Ubiquity DAO Contributors Hub',
+  description: 'Pavlovcik Blog',
+  socialImageTitle: 'Pavlovcik Blog',
   socialImageSubtitle: 'Hello World! 👋',
 
   // social usernames (optional)
-  twitter: 'UbiquityDAO',
-  github: 'ubiquity',
-  discord: 'SjymJ5maJ4',
-  telegram: 'UbiquityDAO',
+  twitter: 'Pavlovcik',
+  github: 'pavlovcik',
+
+  telegram: 'Pavlovcik',
   // linkedin: 'fisch2',
 
   // default notion icon and cover images for site-wide consistency (optional)
