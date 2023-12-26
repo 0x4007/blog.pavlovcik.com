@@ -8,11 +8,11 @@ export const Loading: React.FC = () => (
     <p id='loading-message'>
       Fetching the latest contents from the&nbsp;
       <a
-        href='https://ubiquitydao.notion.site/Ubiquity-DAO-ff1a3cae900941e49cc4d4458cc2867d'
+        href='https://pavlovcik.notion.site/Alex-s-Blog-aba833db19a743bbbc3dbdbf990934d3'
         target='_blank'
         rel='noreferrer'
       >
-        DAO&apos;s Notion
+        Alex&apos;s Notion
       </a>
       .
     </p>
