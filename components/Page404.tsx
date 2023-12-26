@@ -31,27 +31,7 @@ export const Page404: React.FC<types.PageProps> = ({ site, pageId, error }) => {
                 <li>
                   <a
                     className='notion-page-link'
-                    href='//github.com/ubiquity/ubiquity-dollar/wiki'
-                    target='_blank'
-                    rel='noreferrer'
-                  >
-                    Docs
-                  </a>
-                </li>
-                <li>
-                  <a
-                    className='notion-page-link'
-                    href='//dao.ubq.fi/faq'
-                    target='_blank'
-                    rel='noreferrer'
-                  >
-                    FAQ
-                  </a>
-                </li>
-                <li>
-                  <a
-                    className='notion-page-link'
-                    href='//github.com/ubiquity/ubiquity-dollar'
+                    href='//github.com/pavlovcik'
                     target='_blank'
                     rel='noreferrer'
                   >
@@ -61,17 +41,7 @@ export const Page404: React.FC<types.PageProps> = ({ site, pageId, error }) => {
                 <li>
                   <a
                     className='notion-page-link'
-                    href='//discord.gg/SjymJ5maJ4'
-                    target='_blank'
-                    rel='noreferrer'
-                  >
-                    Discord
-                  </a>
-                </li>
-                <li>
-                  <a
-                    className='notion-page-link'
-                    href='//t.me/ubiquitydao'
+                    href='//t.me/pavlovcik'
                     target='_blank'
                     rel='noreferrer'
                   >
@@ -81,7 +51,7 @@ export const Page404: React.FC<types.PageProps> = ({ site, pageId, error }) => {
                 <li>
                   <a
                     className='notion-page-link'
-                    href='//twitter.com/UbiquityDAO'
+                    href='//twitter.com/0x4007'
                     target='_blank'
                     rel='noreferrer'
                   >
