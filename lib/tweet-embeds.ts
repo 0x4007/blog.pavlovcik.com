@@ -1,12 +1,13 @@
-import { ExtendedRecordMap } from 'notion-types'
-import { fetchTweetAst } from 'static-tweets'
+import type { ExtendedRecordMap } from 'notion-types'
+import { getBlockValue } from 'notion-utils'
 import pMap from 'p-map'
+import { getTweet } from 'react-tweet/api'
 
 export async function getTweetAstMap(recordMap: ExtendedRecordMap) {
   const blockIds = Object.keys(recordMap.block)
   const tweetIds: string[] = blockIds
     .map((blockId) => {
-      const block = recordMap.block[blockId]?.value
+      const block = getBlockValue(recordMap.block[blockId])
 
       if (block) {
         if (block.type === 'tweet') {
@@ -23,13 +24,13 @@ export async function getTweetAstMap(recordMap: ExtendedRecordMap) {
     })
     .filter(Boolean)
 
-  const tweetAsts = await pMap(
+  const tweetData = await pMap(
     tweetIds,
     async (tweetId) => {
       try {
         return {
           tweetId,
-          tweetAst: await fetchTweetAst(tweetId)
+          tweet: await getTweet(tweetId)
         }
       } catch (err) {
         console.error('error fetching tweet info', tweetId, err)
@@ -40,16 +41,16 @@ export async function getTweetAstMap(recordMap: ExtendedRecordMap) {
     }
   )
 
-  const tweetAstMap = tweetAsts.reduce((acc, { tweetId, tweetAst }) => {
-    if (tweetAst) {
+  const tweetMap = tweetData.reduce((acc, item) => {
+    if (item?.tweet) {
       return {
         ...acc,
-        [tweetId]: tweetAst
+        [item.tweetId]: item.tweet
       }
     } else {
       return acc
     }
   }, {})
 
-  return tweetAstMap
+  return tweetMap
 }

@@ -1,8 +1,10 @@
 import type { GetServerSideProps } from 'next'
+import { type PageMap } from 'notion-types'
 
-import { host } from '@/lib/config'
-import { getSiteMap } from '@/lib/get-site-map'
-import type { SiteMap } from '@/lib/types'
+import type { Site } from '@/lib/types'
+import { host, site } from '@/lib/config'
+import { getContentPageMap } from '@/lib/get-content-page-map'
+import { mapPageUrl } from '@/lib/map-page-url'
 
 export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
   if (req.method !== 'GET') {
@@ -15,7 +17,7 @@ export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
     }
   }
 
-  const siteMap = await getSiteMap()
+  const contentPageMap = await getContentPageMap()
 
   // cache for up to 8 hours
   res.setHeader(
@@ -23,7 +25,7 @@ export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
     'public, max-age=28800, stale-while-revalidate=28800'
   )
   res.setHeader('Content-Type', 'text/xml')
-  res.write(createSitemap(siteMap))
+  res.write(createSitemap(site, contentPageMap))
   res.end()
 
   return {
@@ -31,27 +33,40 @@ export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
   }
 }
 
-const createSitemap = (siteMap: SiteMap) =>
-  `<?xml version="1.0" encoding="UTF-8"?>
+const createSitemap = (site: Site, contentPageMap: PageMap) => {
+  const pageUrls = new Set<string>([host])
+
+  for (const [pageId, recordMap] of Object.entries(contentPageMap)) {
+    try {
+      const pagePath = mapPageUrl(
+        site,
+        recordMap,
+        new URLSearchParams()
+      )(pageId)
+
+      if (pagePath !== '/404') {
+        pageUrls.add(pagePath === '/' ? host : `${host}${pagePath}`)
+      }
+    } catch (err) {
+      console.warn(`Skipping invalid sitemap page "${pageId}"`, err)
+    }
+  }
+
+  return `<?xml version="1.0" encoding="UTF-8"?>
   <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-    <url>
-      <loc>${host}</loc>
-    </url>
-
-    <url>
-      <loc>${host}/</loc>
-    </url>
-
-    ${Object.keys(siteMap.canonicalPageMap)
-      .map((canonicalPagePath) =>
+    ${Array.from(pageUrls)
+      .map((pageUrl) =>
         `
           <url>
-            <loc>${host}/${canonicalPagePath}</loc>
+            <loc>${pageUrl}</loc>
           </url>
         `.trim()
       )
       .join('')}
   </urlset>
 `
+}
 
-export default () => null
+export default function noop() {
+  return null
+}

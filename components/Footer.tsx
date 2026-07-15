@@ -1,16 +1,16 @@
 import * as React from 'react'
-
-import { FaDiscord } from '@react-icons/all-files/fa/FaDiscord'
-import { FaEnvelopeOpenText } from '@react-icons/all-files/fa/FaEnvelopeOpenText'
-import { FaGithub } from '@react-icons/all-files/fa/FaGithub'
-import { FaLinkedin } from '@react-icons/all-files/fa/FaLinkedin'
-import { FaMastodon } from '@react-icons/all-files/fa/FaMastodon'
-import { FaTelegramPlane } from '@react-icons/all-files/fa/FaTelegramPlane'
-import { FaTwitter } from '@react-icons/all-files/fa/FaTwitter'
-import { FaYoutube } from '@react-icons/all-files/fa/FaYoutube'
-import { FaZhihu } from '@react-icons/all-files/fa/FaZhihu'
-import { IoMoonSharp } from '@react-icons/all-files/io5/IoMoonSharp'
-import { IoSunnyOutline } from '@react-icons/all-files/io5/IoSunnyOutline'
+import {
+  FaDiscord,
+  FaEnvelopeOpenText,
+  FaGithub,
+  FaLinkedin,
+  FaMastodon,
+  FaTelegramPlane,
+  FaTwitter,
+  FaYoutube,
+  FaZhihu
+} from 'react-icons/fa'
+import { IoMoonSharp, IoSunnyOutline } from 'react-icons/io5'
 
 import * as config from '@/lib/config'
 import { useDarkMode } from '@/lib/use-dark-mode'
@@ -19,7 +19,7 @@ import styles from './styles.module.css'
 
 // TODO: merge the data and icons from PageSocial with the social links in Footer
 
-export const FooterImpl: React.FC = () => {
+export function FooterImpl() {
   const [hasMounted, setHasMounted] = React.useState(false)
   const { isDarkMode, toggleDarkMode } = useDarkMode()
 

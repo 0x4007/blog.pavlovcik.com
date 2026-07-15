@@ -1,14 +1,12 @@
-import * as React from 'react'
-
-import { AiOutlineRetweet } from '@react-icons/all-files/ai/AiOutlineRetweet'
-import { IoHeartOutline } from '@react-icons/all-files/io5/IoHeartOutline'
+import { AiOutlineRetweet } from 'react-icons/ai'
+import { IoHeartOutline } from 'react-icons/io5'
 
 import styles from './styles.module.css'
 
 /**
  * @see https://developer.twitter.com/en/docs/twitter-for-websites/web-intents/overview
  */
-export const PageActions: React.FC<{ tweet: string }> = ({ tweet }) => {
+export function PageActions({ tweet }: { tweet: string }) {
   return (
     <div className={styles.pageActions}>
       <a

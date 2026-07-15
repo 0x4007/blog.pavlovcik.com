@@ -1,19 +1,28 @@
-import * as React from 'react'
+import cs from 'classnames'
 import dynamic from 'next/dynamic'
-import Image from 'next/image'
+import Image from 'next/legacy/image'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-
-import cs from 'classnames'
-import { PageBlock } from 'notion-types'
-import { formatDate, getBlockTitle, getPageProperty, parsePageId } from 'notion-utils'
+import { type PageBlock } from 'notion-types'
+import {
+  formatDate,
+  getBlockTitle,
+  getPageProperty,
+  parsePageId
+} from 'notion-utils'
+import * as React from 'react'
 import BodyClassName from 'react-body-classname'
-import { NotionRenderer } from 'react-notion-x'
-import TweetEmbed from 'react-tweet-embed'
-import { useSearchParam } from 'react-use'
+import {
+  type NotionComponents,
+  NotionRenderer,
+  useNotionContext
+} from 'react-notion-x'
+import { EmbeddedTweet, TweetNotFound, TweetSkeleton } from 'react-tweet'
 
+import type * as types from '@/lib/types'
 import * as config from '@/lib/config'
-import * as types from '@/lib/types'
+import { isRootPageChild } from '@/lib/get-canonical-page-id'
+import { getPageBlock } from '@/lib/get-page-block'
 import { mapImageUrl } from '@/lib/map-image-url'
 import { getCanonicalPageUrl, mapPageUrl } from '@/lib/map-page-url'
 import { searchNotion } from '@/lib/search-notion'
@@ -95,8 +104,15 @@ const Modal = dynamic(
   }
 )
 
-const Tweet = ({ id }: { id: string }) => {
-  return <TweetEmbed tweetId={id} />
+function Tweet({ id }: { id: string }) {
+  const { recordMap } = useNotionContext()
+  const tweet = (recordMap as types.ExtendedTweetRecordMap)?.tweets?.[id]
+
+  return (
+    <React.Suspense fallback={<TweetSkeleton />}>
+      {tweet ? <EmbeddedTweet tweet={tweet} /> : <TweetNotFound />}
+    </React.Suspense>
+  )
 }
 
 const propertyLastEditedTimeValue = (
@@ -140,18 +156,21 @@ const propertyTextValue = (
   return defaultFn()
 }
 
-export const NotionPage: React.FC<types.PageProps> = ({
+export function NotionPage({
   site,
   recordMap,
   error,
   pageId
-}) => {
+}: types.PageProps) {
   const router = useRouter()
-  const lite = useSearchParam('lite')
+  const lite =
+    router.isReady && typeof router.query.lite === 'string'
+      ? router.query.lite
+      : null
 
-  const components = React.useMemo(
+  const components = React.useMemo<Partial<NotionComponents>>(
     () => ({
-      nextImage: Image,
+      nextLegacyImage: Image,
       nextLink: Link,
       Code,
       Collection,
@@ -180,13 +199,16 @@ export const NotionPage: React.FC<types.PageProps> = ({
     return mapPageUrl(site, recordMap, searchParams)
   }, [site, recordMap, lite])
 
-  const keys = Object.keys(recordMap?.block || {})
-  const block = recordMap?.block?.[keys[0]]?.value
+  const block = getPageBlock(recordMap, pageId)
 
   const isRootPage =
     parsePageId(block?.id) === parsePageId(site?.rootNotionPageId)
   const isBlogPost =
-    block?.type === 'page' && block?.parent_table === 'collection'
+    !!site &&
+    !!recordMap &&
+    block?.type === 'page' &&
+    !isRootPage &&
+    !isRootPageChild(block.id, recordMap, site.rootNotionPageId)
 
   const showTableOfContents = !!isBlogPost
   const minTableOfContentsItems = 3
@@ -202,14 +224,6 @@ export const NotionPage: React.FC<types.PageProps> = ({
   }
 
   const title = getBlockTitle(block, recordMap) || site.name
-
-  console.log('notion page', {
-    isDev: config.isDev,
-    title,
-    pageId,
-    rootNotionPageId: site.rootNotionPageId,
-    recordMap
-  })
 
   if (!config.isServer) {
     // add important objects to the window global for easy debugging
@@ -233,37 +247,6 @@ export const NotionPage: React.FC<types.PageProps> = ({
     getPageProperty<string>('Description', block, recordMap) ||
     config.description
 
-  // prepare background video for home page
-  const heroVideo =
-    'https://storageapi.fleek.one/2e62e11d-d4be-4c6f-a2bb-b159c83a0d95-bucket/ubq.fi/hero.mp4'
-
-  let pageCover
-  if (isRootPage) {
-    // HERO VIDEO
-    pageCover = (
-      <>
-        <div className='notion-page-cover-background'></div>
-        <video
-          className='notion-page-cover'
-          autoPlay
-          controls={false}
-          loop
-          muted
-          playsInline
-        >
-          <source src={heroVideo} type='video/mp4' />
-        </video>
-      </>
-    )
-  } else {
-    // NO HERO VIDEO
-    pageCover = (
-      <>
-        <div className='notion-page-cover-background'></div>
-      </>
-    )
-  }
-
   return (
     <>
       <PageHead
@@ -276,7 +259,6 @@ export const NotionPage: React.FC<types.PageProps> = ({
       />
 
       {isLiteMode && <BodyClassName className='notion-lite' />}
-      {isDarkMode && <BodyClassName className='dark-mode' />}
 
       <NotionRenderer
         bodyClassName={cs(
@@ -299,7 +281,6 @@ export const NotionPage: React.FC<types.PageProps> = ({
         mapPageUrl={siteMapPageUrl}
         mapImageUrl={mapImageUrl}
         searchNotion={config.isSearchEnabled ? searchNotion : null}
-        pageCover={pageCover}
         footer={footer}
       />
     </>

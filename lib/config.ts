@@ -5,16 +5,11 @@
  * for optional depenencies.
  */
 import { parsePageId } from 'notion-utils'
-import { PostHogConfig } from 'posthog-js'
+import { type PostHogConfig } from 'posthog-js'
 
 import { getEnv, getSiteConfig } from './get-config-value'
-import { NavigationLink } from './site-config'
-import {
-  NavigationStyle,
-  PageUrlOverridesInverseMap,
-  PageUrlOverridesMap,
-  Site
-} from './types'
+import { type NavigationLink } from './site-config'
+import { type NavigationStyle, type Site } from './types'
 
 export const rootNotionPageId: string = parsePageId(
   getSiteConfig('rootNotionPageId'),
@@ -26,22 +21,8 @@ if (!rootNotionPageId) {
 }
 
 // if you want to restrict pages to a single notion workspace (optional)
-export const rootNotionSpaceId: string | null = parsePageId(
-  getSiteConfig('rootNotionSpaceId', null),
-  { uuid: true }
-)
-
-export const pageUrlOverrides = cleanPageUrlMap(
-  getSiteConfig('pageUrlOverrides', {}) || {},
-  { label: 'pageUrlOverrides' }
-)
-
-export const pageUrlAdditions = cleanPageUrlMap(
-  getSiteConfig('pageUrlAdditions', {}) || {},
-  { label: 'pageUrlAdditions' }
-)
-
-export const inversePageUrlOverrides = invertPageUrlOverrides(pageUrlOverrides)
+export const rootNotionSpaceId: string | null =
+  parsePageId(getSiteConfig('rootNotionSpaceId', null), { uuid: true }) ?? null
 
 export const environment = process.env.NODE_ENV || 'development'
 export const isDev = environment === 'development'
@@ -95,12 +76,6 @@ export const isPreviewImageSupportEnabled: boolean = getSiteConfig(
   false
 )
 
-// Optional whether or not to include the Notion ID in page URLs or just use slugs
-export const includeNotionIdInUrls: boolean = getSiteConfig(
-  'includeNotionIdInUrls',
-  !!isDev
-)
-
 export const navigationStyle: NavigationStyle = getSiteConfig(
   'navigationStyle',
   'default'
@@ -140,15 +115,11 @@ export const isServer = typeof window === 'undefined'
 
 export const port = getEnv('PORT', '3000')
 export const host = isDev ? `http://localhost:${port}` : `https://${domain}`
-export const apiHost = isDev
-  ? host
-  : `https://${process.env.VERCEL_URL || domain}`
 
 export const apiBaseUrl = `/api`
 
 export const api = {
   searchNotion: `${apiBaseUrl}/search-notion`,
-  getNotionPageInfo: `${apiBaseUrl}/notion-page-info`,
   getSocialImage: `${apiBaseUrl}/social-image`
 }
 
@@ -172,52 +143,4 @@ export const fathomConfig = fathomId
 export const posthogId = process.env.NEXT_PUBLIC_POSTHOG_ID
 export const posthogConfig: Partial<PostHogConfig> = {
   api_host: 'https://app.posthog.com'
-}
-
-function cleanPageUrlMap(
-  pageUrlMap: PageUrlOverridesMap,
-  {
-    label
-  }: {
-    label: string
-  }
-): PageUrlOverridesMap {
-  return Object.keys(pageUrlMap).reduce((acc, uri) => {
-    const pageId = pageUrlMap[uri]
-    const uuid = parsePageId(pageId, { uuid: false })
-
-    if (!uuid) {
-      throw new Error(`Invalid ${label} page id "${pageId}"`)
-    }
-
-    if (!uri) {
-      throw new Error(`Missing ${label} value for page "${pageId}"`)
-    }
-
-    if (!uri.startsWith('/')) {
-      throw new Error(
-        `Invalid ${label} value for page "${pageId}": value "${uri}" should be a relative URI that starts with "/"`
-      )
-    }
-
-    const path = uri.slice(1)
-
-    return {
-      ...acc,
-      [path]: uuid
-    }
-  }, {})
-}
-
-function invertPageUrlOverrides(
-  pageUrlOverrides: PageUrlOverridesMap
-): PageUrlOverridesInverseMap {
-  return Object.keys(pageUrlOverrides).reduce((acc, uri) => {
-    const pageId = pageUrlOverrides[uri]
-
-    return {
-      ...acc,
-      [pageId]: uri
-    }
-  }, {})
 }
