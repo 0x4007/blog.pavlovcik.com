@@ -1,4 +1,5 @@
-import { PageProps } from './types'
+import { getPageBlock } from './get-page-block.ts'
+import { type PageProps } from './types.ts'
 
 export async function pageAcl({
   site,
@@ -23,10 +24,9 @@ export async function pageAcl({
     }
   }
 
-  const keys = Object.keys(recordMap.block)
-  const rootKey = keys[0]
+  const rootValue = getPageBlock(recordMap, pageId)
 
-  if (!rootKey) {
+  if (!rootValue) {
     return {
       error: {
         statusCode: 404,
@@ -35,7 +35,6 @@ export async function pageAcl({
     }
   }
 
-  const rootValue = recordMap.block[rootKey]?.value
   const rootSpaceId = rootValue?.space_id
 
   if (
@@ -43,13 +42,13 @@ export async function pageAcl({
     site.rootNotionSpaceId &&
     rootSpaceId !== site.rootNotionSpaceId
   ) {
-    if (process.env.NODE_ENV) {
-      return {
-        error: {
-          statusCode: 404,
-          message: `Notion page "${pageId}" doesn't belong to the Notion workspace owned by "${site.domain}".`
-        }
+    return {
+      error: {
+        statusCode: 404,
+        message: `Notion page "${pageId}" doesn't belong to the Notion workspace owned by "${site.domain}".`
       }
     }
   }
+
+  return {}
 }

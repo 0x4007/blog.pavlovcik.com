@@ -1,16 +1,13 @@
 import type { GetServerSideProps } from 'next'
-
-import { ExtendedRecordMap } from 'notion-types'
-import {
-  getBlockParentPage,
-  getBlockTitle,
-  getPageProperty,
-  idToUuid
-} from 'notion-utils'
+import { type ExtendedRecordMap } from 'notion-types'
+import { getBlockTitle, getBlockValue, idToUuid } from 'notion-utils'
 import RSS from 'rss'
 
 import * as config from '@/lib/config'
-import { getSiteMap } from '@/lib/get-site-map'
+import {
+  getContentPageMap,
+  getNestedContentPageIds
+} from '@/lib/get-content-page-map'
 import { getSocialImageUrl } from '@/lib/get-social-image-url'
 import { getCanonicalPageUrl } from '@/lib/map-page-url'
 
@@ -23,53 +20,50 @@ export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
     return { props: {} }
   }
 
-  const siteMap = await getSiteMap()
+  const pageMap = await getContentPageMap()
   const ttlMinutes = 24 * 60 // 24 hours
   const ttlSeconds = ttlMinutes * 60
 
   const feed = new RSS({
     title: config.name,
     site_url: config.host,
-    feed_url: `${config.host}/feed.xml`,
+    feed_url: `${config.host}/feed`,
     language: config.language,
     ttl: ttlMinutes
   })
 
-  for (const pagePath of Object.keys(siteMap.canonicalPageMap)) {
-    const pageId = siteMap.canonicalPageMap[pagePath]
-    const recordMap = siteMap.pageMap[pageId] as ExtendedRecordMap
-    if (!recordMap) continue
+  const items = getNestedContentPageIds(pageMap, config.rootNotionPageId)
+    .flatMap((pageId) => {
+      const recordMap = pageMap[pageId] as ExtendedRecordMap | undefined
+      if (!recordMap) return []
 
-    const keys = Object.keys(recordMap?.block || {})
-    const block = recordMap?.block?.[keys[0]]?.value
-    if (!block) continue
+      const block = getBlockValue(
+        recordMap.block[pageId] || recordMap.block[idToUuid(pageId)]
+      )
+      if (!block) return []
 
-    const parentPage = getBlockParentPage(block, recordMap)
-    const isBlogPost =
-      block.type === 'page' &&
-      block.parent_table === 'collection' &&
-      parentPage?.id === idToUuid(config.rootNotionPageId)
-    if (!isBlogPost) {
-      continue
-    }
+      const title = getBlockTitle(block, recordMap) || config.name
+      const description = config.description || title
+      const url = getCanonicalPageUrl(config.site, recordMap)(pageId)
+      const timestamp = block.last_edited_time || block.created_time
+      const date = timestamp ? new Date(timestamp) : undefined
+      const socialImageUrl = getSocialImageUrl(pageId)
 
-    const title = getBlockTitle(block, recordMap) || config.name
-    const description =
-      getPageProperty<string>('Description', block, recordMap) ||
-      config.description
-    const url = getCanonicalPageUrl(config.site, recordMap)(pageId)
-    const lastUpdatedTime = getPageProperty<number>(
-      'Last Updated',
-      block,
-      recordMap
-    )
-    const publishedTime = getPageProperty<number>('Published', block, recordMap)
-    const date = lastUpdatedTime
-      ? new Date(lastUpdatedTime)
-      : publishedTime
-      ? new Date(publishedTime)
-      : undefined
-    const socialImageUrl = getSocialImageUrl(pageId)
+      return [
+        {
+          title,
+          url,
+          date,
+          description,
+          socialImageUrl,
+          timestamp: timestamp || 0
+        }
+      ]
+    })
+    .sort((a, b) => b.timestamp - a.timestamp)
+
+  for (const item of items) {
+    const { title, url, date, description, socialImageUrl } = item
 
     feed.item({
       title,
@@ -79,7 +73,7 @@ export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
       enclosure: socialImageUrl
         ? {
             url: socialImageUrl,
-            type: 'image/jpeg'
+            type: 'image/png'
           }
         : undefined
     })
@@ -89,7 +83,7 @@ export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
 
   res.setHeader(
     'Cache-Control',
-    `public, max-age=${ttlSeconds}, stale-while-revalidate=${ttlSeconds}`
+    `public, max-age=0, s-maxage=${ttlSeconds}, stale-while-revalidate=${ttlSeconds}`
   )
   res.setHeader('Content-Type', 'text/xml; charset=utf-8')
   res.write(feedText)
@@ -98,4 +92,6 @@ export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
   return { props: {} }
 }
 
-export default () => null
+export default function noop() {
+  return null
+}

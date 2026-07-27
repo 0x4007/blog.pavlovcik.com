@@ -1,27 +1,40 @@
-import { ExtendedRecordMap } from 'notion-types'
+import { type ExtendedRecordMap } from 'notion-types'
 import {
   getCanonicalPageId as getCanonicalPageIdImpl,
-  parsePageId
+  parsePageId,
+  uuidToId
 } from 'notion-utils'
 
-import { inversePageUrlOverrides } from './config'
+import { getPageBlock } from './get-page-block.ts'
 
 export function getCanonicalPageId(
   pageId: string,
   recordMap: ExtendedRecordMap,
-  { uuid = true }: { uuid?: boolean } = {}
+  rootPageId: string
 ): string | null {
-  const cleanPageId = parsePageId(pageId, { uuid: false })
-  if (!cleanPageId) {
+  const pageUuid = parsePageId(pageId, { uuid: true })
+  if (!pageUuid) {
     return null
   }
 
-  const override = inversePageUrlOverrides[cleanPageId]
-  if (override) {
-    return override
-  } else {
-    return getCanonicalPageIdImpl(pageId, recordMap, {
-      uuid
-    })
-  }
+  return getCanonicalPageIdImpl(pageUuid, recordMap, {
+    uuid: !isRootPageChild(pageUuid, recordMap, rootPageId)
+  })
+}
+
+/**
+ * A top-level page has the configured Notion root as its direct block parent.
+ * This relation is present on the page block itself, so canonical URLs do not
+ * depend on which surrounding blocks happen to be present in a record map.
+ */
+export function isRootPageChild(
+  pageId: string,
+  recordMap: ExtendedRecordMap,
+  rootPageId: string
+): boolean {
+  const page = getPageBlock(recordMap, pageId)
+  return (
+    page?.parent_table === 'block' &&
+    uuidToId(page.parent_id) === uuidToId(rootPageId)
+  )
 }

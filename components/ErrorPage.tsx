@@ -1,9 +1,9 @@
-import * as React from 'react'
+import Image from 'next/image'
 
 import { PageHead } from './PageHead'
 import styles from './styles.module.css'
 
-export const ErrorPage: React.FC<{ statusCode: number }> = ({ statusCode }) => {
+export function ErrorPage({ statusCode }: { statusCode: number }) {
   const title = 'Error'
 
   return (
@@ -13,10 +13,26 @@ export const ErrorPage: React.FC<{ statusCode: number }> = ({ statusCode }) => {
       <div className={styles.container}>
         <main className={styles.main}>
           <h1>Error Loading Page</h1>
-          <p className="page-error-message">We&apos;re sorry for the inconvenience. Devs are doing something, right now!</p>
-          <p className="page-error-message">Please try reading the source materials on our <a href="https://ubiquitydao.notion.site/Ubiquity-DAO-ff1a3cae900941e49cc4d4458cc2867d" target="_blank" rel="noreferrer">Notion</a>!</p>
+          <p className='page-error-message'>This page could not be loaded.</p>
+          <p className='page-error-message'>
+            You can still read the source page in{' '}
+            <a
+              href='https://pavlovcik.notion.site/Alex-s-Blog-aba833db19a743bbbc3dbdbf990934d3'
+              target='_blank'
+              rel='noreferrer'
+            >
+              Notion
+            </a>
+            .
+          </p>
           {statusCode && <p>Error code: {statusCode}</p>}
-          <img src='/error.png' alt='Error' className={styles.errorImage} />
+          <Image
+            src='/error.png'
+            alt='Error'
+            width={640}
+            height={640}
+            className={styles.errorImage}
+          />
         </main>
       </div>
     </>
